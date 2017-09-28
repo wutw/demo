@@ -1,0 +1,14 @@
+
+body {
+    font-family: "Microsoft YaHei" !important;
+    font-size: 14px !important;
+    height: 100%;
+}
+.yh-layer {
+    padding-top: 20px;
+    padding-left: 20px;
+    padding-right: 50px;
+}
+a:hover, a:link {
+    text-decoration: none;
+}

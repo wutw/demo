@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+    <h2>name management: <input type="text" v-model="Name"/></h2>
+    <h2>name:{{Name}}</h2>
+    <h2>age:{{Age}}</h2>
+    <button class="btn btn-primary" @click="Age++;">age++</button>
+    <button class="btn btn-primary" @click="Hello">hello</button>
+
+
+    <hr />
+    <h2>remark management:<textarea v-model="Remark"></textarea></h2>
+    <h2>remark:<label v-text="Remark"></label></h2>
+    <hr/>
+    <h2>marriage?<span v-show="IsMarry">yes</span></h2>
+    <input type="checkbox" id="basketball" value="basketball" v-model="Hobby">
+    <label for="basketball">basketball</label>
+    <input type="checkbox" id="football" value="football" v-model="Hobby">
+    <label for="football">football</label>
+    <br>
+    <h2>hobby: {{Hobby}}</h2>
+    <h2>adult or child:<span v-if="Age>18">adult</span><span v-else>child</span></h2>
+    <hr />
+    <h2>place:{{Huji}}</h2>
+
+    <select style="width:100px;" class="form-control" v-model="Huji">
+        <option>HuNan</option>
+        <option>GuangDong</option>
+    </select>
+
+
+</div>
+
+
+<script type="text/javascript" src="js/third/vue.js"></script>
+<script type="text/javascript">
+    var data={
+        Name:'xiaoming',
+        Age:12,
+        IsMarry:false,
+        School:'middle school',
+        Hobby: [],
+        Remark:' good student',
+        Huji:'',
+        pages: 10
+    };
+    var vue = new Vue({
+        el:'#app',
+        data:data,
+        methods:{
+            Hello: function(event){
+                alert('Hello'+ this.Name +'!');
+                this.Age++;
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+button.btnStyle, button.btnStyle:hover, button.btnStyle:focus {
+    background: #0FBBD9;
+    color: white;
+}
+button.btnY, button.btnY:hover, button.btnY:focus {
+    background: #F9BC58;
+    color: white;
+}
+.form-group button {
+    margin-left: 10px;
+}
+.table-wrapper .selector .form-group {
+
+    margin-bottom: 15px;
+
+}
+.table-wrapper .selector {
+    padding: 30px 10px;
+}
+.table-wrapper {
+    border: solid 1px #E3E3E3;
+}
+.table {
+    width: 94% !important;
+    margin-left: 3%;
+}
+.table-wrapper .selector label {
+    display: inline-block;
+    margin-right: 10px;
+    height: 33px;
+    line-height: 33px;
+}
+.row, .col-xs-6, .col-xs-2, .col-xs-10, .col-xs-4, .col-xs-8 {
+    padding: 0!important;
+    margin: 0!important;
+    text-align:right;
+}
+label {
+    font-weight: normal;
+    color: #999999;
+}
+.table-wrapper .selector .form-group .form-control {
+    width: 100%;
+}
+div.wraper .table-wrapper .table>thead>tr {
+    border: 2px solid #dddddd;
+}
+div.wraper .table-wrapper .table a {
+    color: #15C4E3;
+}
+
+

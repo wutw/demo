@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>vue进行CURD操作</title>
+    <link rel="stylesheet" href="js/third/bootstrap-3.5/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/app.css">
+    <style type="text/css">
+        [v-cloak] {
+            display: none
+        }
+        .overlay input {
+            border:none;
+        }
+        .overlay .content {
+            text-align: center;
+        }
+        .overlay p {
+            margin-top: 20px;
+        }
+        .overlay td input{
+            width:100%;
+            text-align:center;
+        }
+        .search{
+            margin-left:10px;
+            margin-right:10px;
+        }
+
+        table {
+            border: 1px solid #ccc;
+            padding: 0;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-top:10px;
+            width: 100%;
+        }
+
+        table td,
+        table th {
+            height: 30px;
+            line-height: 30px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        table th:first-child {
+            width: 30px;
+        }
+        .container{
+            padding-top:20px;
+            margin-bottom: 20px;
+        }
+
+
+
+
+        .container .searchContent {
+            width:auto;
+            display:inline-block;
+            font-size: 15px;
+            padding: 4px;
+        }
+
+        .container .add {
+            padding: 5px 15px;
+        }
+        button, button:hover, button:focus {
+            background-color: #0FBBD9 !important;
+            color: white !important;
+        }
+        .title{
+            background: #1b8bb5;
+            margin: 0;
+            text-align: center;
+            padding: 10px;
+            font-size: 20px;
+
+            font-family: "Microsoft YaHei";
+            color: #fcf8e3;
+        }
+
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 6;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .overlay td:first-child {
+            width: 66px;
+        }
+        #app td{
+            padding:5px;
+            word-break: break-all;
+        }
+        .overlay table{
+            margin-top:0px;
+        }
+        .overlay .con {
+            position: absolute;
+            width: 420px;
+            min-height: 300px;
+            background: #fff;
+            left: 50%;
+            top: 50%;
+            -webkit-transform: translate3d(-50%, -50%, 0);
+            transform: translate3d(-50%, -50%, 0);
+            /*margin-top: -150px;*/
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container" id="app">
+    <div>
+        <input type="text" placeholder="请输入查询内容"  @input='option' list="cars" class="form-control searchContent">
+        <datalist id="cars">
+            <option v-for="item in searchlist" :value="item"></option>
+        </datalist>
+        <!-- <datalist> 标签定义选项列表。请与 input 元素配合使用该元素，来定义 input 可能的值。
+           datalist 及其选项不会被显示出来，它仅仅是合法的输入值列表。
+           请使用 input 元素的 list 属性来绑定 datalist。-->
+
+        <button type="button" class="search btn btn-default" @click='search'  value="查询">查询</button>
+
+
+        <button type="button" class="add btn btn-default" @click="add" value="新增">新增</button>
+    </div>
+    <div>
+        <table>
+            <tr>
+                <th>id</th>
+                <th>用户名</th>
+                <th>邮箱</th>
+                <th>性别</th>
+                <th>省份</th>
+                <th>爱好</th>
+                <th>操作</th>
+            </tr>
+            <template v-cloak v-for="(item, index) of slist">
+
+                <tr v-if="index>=(current-1)*display && index<current*display">
+                    <td>{{index+1}}</td>
+                    <td>{{item.username}}</td>
+                    <td>{{item.email}}</td>
+                    <td>{{item.sex}}</td>
+                    <td>{{item.province}}</td>
+                    <td>{{item.hobby.join(' | ')}}</td>
+                    <td><a href="javascript:;" @click="showOverlay(index)">修改</a> | <a href="javascript:;" @click="del(index)">删除</a></td>
+                </tr>
+            </template>
+        </table>
+    </div>
+
+
+
+    <pagination :total="total" :current="current" @update:current="val =>current = val"  @pagechange="pagechange" ></pagination>
+    <model :list='selectedlist' :isactive="isActive" v-cloak @change="changeOverlay" @modify="modify"></model>
+</div>
+</body>
+<script type="text/template" id="template_content">
+    <div class="overlay" v-show="isactive">
+        <div class="con">
+            <h2 class="title">新增 | 修改</h2>
+            <div class="content">
+                <table>
+                    <tr>
+                        <td>用户名</td>
+                        <td><input type="text" v-model="modifylist.username"></td>
+                    </tr>
+                    <tr>
+                        <td>邮箱</td>
+                        <td><input type="text" v-model="modifylist.email"></td>
+                    </tr>
+                    <tr>
+                        <td>性别</td>
+                        <td>
+                            <label><input type="radio" name="sex" value="男" v-model="modifylist.sex">男</label>
+                            <label><input type="radio" name="sex" value="女" v-model="modifylist.sex">女</label>
+                            <label><input type="radio" name="sex" value="未知" v-model="modifylist.sex">未知</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>省份</td>
+                        <td>
+                            <select name="" id="" v-model="modifylist.province">
+                                <option value="北京市">北京市</option>
+                                <option value="河北省">河北省</option>
+                                <option value="河南省">河南省</option>
+                                <option value="重庆市">重庆市</option>
+                                <option value="广东省">广东省</option>
+                                <option value="辽宁省">辽宁省</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>爱好</td>
+                        <td>
+                            <label><input type="checkbox" v-model="modifylist.hobby" value="篮球">篮球</label>
+                            <label><input type="checkbox" v-model="modifylist.hobby" value="读书">读书</label>
+                            <label><input type="checkbox" v-model="modifylist.hobby" value="插画">插画</label>
+                            <label><input type="checkbox" v-model="modifylist.hobby" value="编程">编程</label>
+                            <label><input type="checkbox" v-model="modifylist.hobby" value="弹琴">弹琴</label>
+                        </td>
+                    </tr>
+                </table>
+                <p>
+                    <input type="button" @click="changeActive" value="取消">
+                    <input type="button" @click="modify" value="保存">
+                </p>
+            </div>
+        </div>
+    </div>
+
+</script>
+
+
+<script type="text/template" id="template_pagination">
+    <nav>
+        <ul class="pagination">
+            <li :class="{'disabled': current == 1}"><a href="javascript:;" @click="setCurrent(1)"> 首页 </a></li>
+            <li :class="{'disabled': current == 1}"><a href="javascript:;" @click="setCurrent(current - 1)"> 上一页 </a></li>
+            <li v-for="p in grouplist" :class="{'active': current == p.val}"><a href="javascript:;" @click="setCurrent(p.val)"> {{ p.text }} </a></li>
+            <li :class="{'disabled': current == page}"><a href="javascript:;" @click="setCurrent(current + 1)"> 下一页</a></li>
+            <li :class="{'disabled': current == page}"><a href="javascript:;" @click="setCurrent(page)"> 尾页 </a></li>
+        </ul>
+        <ul class="pagination pull-right">
+            <li><span> 共 {{ total }}  条数据 </span></li>
+            <li><span> 每页显示 {{ display }}  条数据 </span></li>
+            <li><span> 共 {{ page }} 页 </span></li>
+         <!--   <li><span> 当前第 {{ current }} 页 </span></li>-->
+        </ul>
+    </nav>
+</script>
+<!--<script type="text/javascript" src="js/third/vue.js"></script>-->
+<script src="js/third/jquery-2.12.js"></script>
+<script type="text/javascript" src="https://unpkg.com/vue@2.3.4/dist/vue.js"></script>
+<script src="js/third/bootstrap-3.5/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+    /**
+     * [pagination 分页组件]
+     * @param  {Number} total 		[数据总条数]
+     * @param  {Number} display 	[每页显示条数 default:10]
+     * @param  {Number} current 	[当前页码 default:1]
+     * @param  {Number} pagegroup 	[分页条数(奇数) default:5]
+     * @param  {Event} pagechange 	[页码改动时 dispatch ]
+     * @return {[type]}   [description]
+     */
+
+    Vue.component('pagination', {
+        template: '#template_pagination',
+        props: {
+            total: {			// 数据总条数
+                type: Number,
+                default: 0
+            },
+            display: {			// 每页显示条数
+                type: Number,
+                default: 6
+            },
+            current: {			// 当前页码
+                type: Number,
+                default: 1
+            },
+            pagegroup: {		// 分页条数 -- 奇数
+                type: Number,
+                default: 5,
+                coerce:function(v){
+                    v = v > 0 ? v : 5;
+                    return v % 2 === 1 ? v : v + 1;
+                }
+            }
+        },
+        computed: {
+            page:function() { // 总页数
+                return Math.ceil(this.total / this.display);
+            },
+            grouplist:function(){ // 获取分页页码
+                var len = this.page , temp = [], list = [], count = Math.floor(this.pagegroup / 2) ,center = this.current;
+                if( len <= this.pagegroup ){
+                    while(len--){ temp.push({text:this.page-len,val:this.page-len});}
+                    return temp;
+                }
+                while(len--){ temp.push(this.page - len);}
+                var idx = temp.indexOf(center);
+                (idx < count) && ( center = center + count - idx);
+                (this.current > this.page - count) && ( center = this.page - count);
+                temp = temp.splice(center - count -1, this.pagegroup);
+                do {
+                    var t = temp.shift();
+                    list.push({
+                        text: t,
+                        val: t
+                    });
+                }while(temp.length);
+                if( this.page > this.pagegroup ){
+                    (this.current > count + 1) && list.unshift({ text:'...',val: list[0].val - 1 });
+                    (this.current < this.page - count) && list.push({ text:'...',val: list[list.length - 1].val + 1 });
+                }
+                return list;
+            }
+
+        },
+        methods: {
+            setCurrent: function(idx) {
+                if( this.current != idx && idx > 0 && idx < this.page + 1) {
+                    /*this.current = idx;*/
+                    this.$emit('update:current',idx);
+                    this.$emit('pagechange',idx);
+                }
+            }
+        }
+    });
+
+
+    Vue.component('model', {
+        props: ['list', 'isactive'],
+        template: "#template_content",
+        computed: {
+            modifylist() {
+                return this.list;
+            }
+        },
+        methods: {
+            changeActive() {
+                this.$emit('change');
+            },
+            modify() {
+                this.$emit('modify', this.modifylist);//调用modifyList（）当用户点击保存时，再通过$emit给了父组件（子组件不能直接父级的数据，
+                // 需要用data或者computed生成一个局部变量，然后再使用$emit方法把这个局部数据再传递上去）：
+            }
+        }
+    });
+    var app = new Vue({
+        el: '#app',
+        data: {
+            isActive: false,
+            selected: -1,
+            selectedlist: {},
+            slist: [],
+            searchlist: [],
+            total: 6,
+            display: 6,
+//            pagegroup:5,
+            current: 1,
+            list: [
+                {
+                    username: 'aaaaa',
+                    email: '123@qq.com',
+                    sex: '男',
+                    province: '北京市',
+                    hobby: ['篮球', '读书', '编程']
+                },
+                {
+                    username: 'bbbbb',
+                    email: 'bbbbbbb@163.com',
+                    sex: '女',
+                    province: '河北省',
+                    hobby: ['弹琴', '读书', '插画']
+                },
+                {
+                    username: 'aaabb',
+                    email: 'abababab@qq.com',
+                    sex: '女',
+                    province: '重庆市',
+                    hobby: ['篮球']
+                },
+                {
+                    username: 'cccccc',
+                    email: '123@qq.com',
+                    sex: '男',
+                    province: '北京市',
+                    hobby: ['篮球', '读书', '编程']
+                },
+                {
+                    username: 'dddddd',
+                    email: 'bbbbbbb@163.com',
+                    sex: '女',
+                    province: '河北省',
+                    hobby: ['弹琴', '读书', '插画']
+                },
+                {
+                    username: 'eeeee',
+                    email: 'abababab@qq.com',
+                    sex: '女',
+                    province: '重庆市',
+                    hobby: ['篮球']
+                }
+            ],
+
+        },
+
+        created() {
+            console.log(Date.now());
+            this.setSlist(this.list);
+        },//created 这个钩子在实例被创建之后被调用
+
+        methods: {
+            // 修改数据
+            showOverlay(index) {
+                this.selected = index;
+                this.selectedlist = this.list[index];
+                this.changeOverlay();
+            },
+            //当前页
+            pagechange(current){
+                this.current = current;
+            },
+
+            // 点击保存按钮
+            modify(arr) {
+                if (this.selected > -1) {
+                    Vue.set(this.list, this.selected, arr);
+                    this.selected = -1;
+                    /*
+                     当用户修改数据后，selectedlist就会发生变化，点击保存按钮时，将数据重新保存到index位置：
+                     this.list 数据数组
+                     this.selected 刚才修改的位置
+                     this.selectedlist/ arr 需要保存的数据
+                     */
+                } else {
+                    this.list.push(arr);
+                    this.total = this.list.length + 1;
+                }
+                this.setSlist(this.list);
+                this.changeOverlay();
+            },
+
+            add: function () {
+                this.selectedlist = {
+                    username: '',
+                    email: '',
+                    sex: '男',
+                    province: '北京市',
+                    hobby: []
+                };
+                this.isActive = true;
+            },
+
+            // delete list in index location
+            del(index) {
+                this.list.splice(index, 1);
+                this.setSlist(this.list);
+                this.total = this.list.length;
+            },
+
+            changeOverlay() {
+                this.isActive = !this.isActive;
+            },
+
+            // 获取需要渲染到页面中的数据
+            setSlist(arr) {
+                this.slist = JSON.parse(JSON.stringify(arr));
+            },
+            option:function(e){
+                var content = e.target.value;
+                self = this;
+                this.searchlist = [];
+                if(content){
+                    this.list.forEach(function(item) {
+                        if (item.username.indexOf(content) > -1) {
+                            if (self.searchlist.indexOf(item.username) == -1) {
+                                self.searchlist.push(item.username);
+
+                            }
+
+
+                        } else if (item.email.indexOf(content) > -1) {
+                            if (self.searchlist.indexOf(item.email) == -1) {
+                                self.searchlist.push(item.email);
+
+                            }
+                        }
+                    });
+                }
+            },
+           /* //上一页方法
+            PrePage:function(event){
+                $('.pagination .active').prev().trigger('click');
+            },
+            //下一页方法
+            NextPage:function(event){
+                $('.pagination .active').next().trigger('click');
+            },
+            NumPage:function(num,event){
+                if(this.curpage == num){
+                    return;
+                }
+                this.curpage = num;
+                $('.pagination li').removeClass('active');
+                if(event.target.tagName.toUpperCase() == 'LI'){
+                    $(event.target).addClass('active');
+                } else{
+                    $(event.target).parent().addClass('active');
+                }
+                if(this.curpage ==1){
+                    $('#prepage').addClass('disabled');
+                } else{
+                    $('#prepage').removeClass('disabled');
+                }
+                if(this.curpage == Math.ceil(this.list.length / this.pagesize)){
+                    $('#nextpage').addClass('disabled');
+                } else{
+                    $('#nextpage').removeClass('disabled');
+                }
+            },*/
+            // 搜索
+            search(e) {
+
+                var v = $('.searchContent').val();
+
+                if (v) {
+                    var ss = [];
+
+                    // 过滤需要的数据
+                    this.list.forEach(function (item) {
+                        if (item.username.indexOf(v) > -1) {
+
+                            ss.push(item);
+                        } else if (item.email.indexOf(v) > -1) {
+
+                            ss.push(item);
+                        }
+                    });
+                    this.setSlist(ss); // 将过滤后的数据给了slist
+                    this.total = ss.length;
+
+                } else {
+                    // 没有搜索内容，则展示全部数据
+                    this.setSlist(this.list);
+                    this.total = this.list.length;
+                }
+            }
+        },
+
+        watch: {
+
+        }
+    })
+
+</script>
+
+</html>

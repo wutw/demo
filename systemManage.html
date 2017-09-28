@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>demo</title>
+    <link href="css/systemManage.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="js/third/bootstrap-3.5/css/bootstrap.min.css"/>
+    <link href="css/app.css" rel="stylesheet"/>
+    <link href="css/reset.css" rel="stylesheet"/>
+</head>
+<body>
+<div id="wrapper">
+    <div class="navbarSide">
+        <ul class="sideMenuTip">
+            <li class="sideImg"></li>
+        </ul>
+    </div>
+<nav class="navbar-default tree-navbar" role="navigation">
+
+        <ul class="nav-menu" id="side-menu">
+        </ul>
+
+
+</nav>
+    <div class="right-container">
+        <div class="title">
+            <p><span>系统管理</span>&nbsp; > &nbsp;
+            <span id="titleName"></span></p>
+        </div>
+        <div class="container" id="container">
+        <iframe class="J_iframe" name="iframe0" width="100%" scrolling="no" frameborder="0" height="100%" src="blank.html"></iframe>
+        </div>
+    </div>
+</div>
+
+
+
+<!--监测树-->
+<script type="text/template" id="nav-tpl">
+    {@each list as it,index}
+    <li class="chapter mainChapter" id="${ it.id }">
+        <a href="javascript:;" id= "menu-1" class="menu-1 menuGroup"  data-id="${ it.id }">
+            <img class="iconfont icon-setting" src="images/setting.png">
+            <span>${ it.groupName }</span>
+        </a>
+
+        <ul class="down monitor">
+            {@each it.list as it2}
+            <li class="chapter mainChapter menuChapter">
+
+                <a href="javascript:;" class=" menu-2 menuGroup"  data-id="${ it2.id }">
+
+                    <span>${ it2.monitorName }</span><!--<img class="arrow" src="images/arrowUp.png">-->
+                </a>
+                {@each it2.list as it3}
+            <ul class="down menu-3">
+                <li class="chapter">
+                <a class="sensorJs" data-type="${ it3.sensorType }" href="${ it3.href }">
+                 <label for="${ it3.id }" >    </label>
+                    <input id="${ it3.id }"   data-type="${ it3.sensorType }" type="radio" value="${ it3.sensorName }" /> ${ it3.sensorName }</a>
+
+                </li>
+
+            {@/each}
+            </ul>
+            </li>
+            {@/each}
+        </ul>
+    </li>
+    {@/each}
+</script>
+
+<script src="js/third/jquery-2.12.js"></script>
+<script type="text/javascript" src="js/third/layer/layer.js"></script>
+<script src="js/third/bootstrap-3.5/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/yhGo.js"></script>
+<script type="text/javascript" src="js/yhPage.js"></script>
+<script type="text/javascript" src="js/yhLayer.js"></script>
+<script type="text/javascript" src="js/third/vue.js"></script>
+<script type="text/javascript" src="js/third/juicer-min.js"></script>
+<script type="text/javascript" src="js/systemManage.js"></script>
+
+</body>
+</html>

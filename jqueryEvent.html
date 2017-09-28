@@ -1,0 +1,43 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+<!--<img class="img" style="background-color: #00A1CB" src="images/arrowUp.png">-->
+
+<div class="box">
+    <a class="link" href="blank.html">Hello</a>
+</div>
+<script src="js/third/jquery-2.12.js"></script>
+<script>
+
+//鼠标跟随
+    /*$(function(){
+       $(document).on('mousemove',function(e){
+           $('img').css({
+               'position':'absolute',
+               'top': e.pageY,
+               'left': e.pageX
+           })
+       })
+    });
+*/
+
+    jQuery(document).ready(function(){
+        $('.link').on('click',function(e){
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        $('.box').on('click',function(){
+            alert('hello');
+        })
+
+    });
+</script>
+</body>
+</html>
