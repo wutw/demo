@@ -35,5 +35,7 @@ var yhLayer = {
 			layer.msg(msgCode, {icon: index, time: time}, function(){
 				window.location.reload();
 			});
+			//test
+			//test
 	}
 };
